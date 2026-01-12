@@ -1,0 +1,30 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="container d-flex justify-content-center align-items-center" style="min-height: 80vh;">
+    <div class="card p-4 p-md-5" style="width: 100%; max-width: 420px;">
+        
+        <div class="text-center mb-4">
+            <h3 class="fw-bold">Create Account</h3>
+            <p class="text-muted">Join the pizza revolution.</p>
+        </div>
+
+        <form method="POST">
+            <div class="kraken-input-group">
+                <input type="text" name="username" class="kraken-input" id="reg-user" placeholder=" " required>
+                <label for="reg-user" class="kraken-label">Choose a Username</label>
+            </div>
+
+            <div class="kraken-input-group">
+                <input type="password" name="password" class="kraken-input" id="reg-pass" placeholder=" " required>
+                <label for="reg-pass" class="kraken-label">Create Password</label>
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100 py-3 mt-2">Create Account</button>
+        </form>
+
+        <p class="text-center mt-4 text-muted">
+            Already have an account? <a href="{{ url_for('login') }}" style="color: var(--accent-color); text-decoration: none; font-weight: 600;">Sign in</a>
+        </p>
+    </div>
+</div>
+{% endblock %}
