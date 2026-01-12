@@ -1,0 +1,50 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<!-- Hero Section -->
+<div class="hero-section text-center">
+    <div class="container">
+        <h1 class="display-4 fw-bold">Craving Something Hot?</h1>
+        <p class="lead mb-4">Hand-tossed, stone-baked, and delivered lightning fast.</p>
+        <a href="#menu" class="btn btn-light text-primary fw-bold px-4 py-2 rounded-pill">View Menu</a>
+    </div>
+</div>
+
+<div class="container mb-5" id="menu">
+    <h3 class="fw-bold mb-4">Our Signature Pizzas</h3>
+    <div class="row g-4">
+        {% for product in products %}
+        <div class="col-md-3">
+            <div class="card h-100 border-0">
+                <!-- Image Placeholder -->
+                <div style="height: 200px; background-color: #f0f2f5; display: flex; align-items: center; justify-content: center; border-radius: 16px 16px 0 0;">
+                    <i class="fas fa-pizza-slice fa-4x text-muted"></i>
+                </div>
+                
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <h5 class="card-title fw-bold">{{ product[1] }}</h5>
+                        <span class="badge bg-light text-dark">{{ product[3] }}</span>
+                    </div>
+                    
+                    <p class="text-muted small">
+                        {% if 'Spicy' in product[1] %}
+                            <i class="fas fa-fire text-danger"></i> Spicy & Hot!
+                        {% else %}
+                            Classic Italian taste.
+                        {% endif %}
+                    </p>
+
+                    <div class="d-flex justify-content-between align-items-center mt-3">
+                        <span class="h5 mb-0 fw-bold text-primary">${{ product[2] }}</span>
+                        <a href="{{ url_for('add_to_cart', product_id=product[0]) }}" class="btn btn-primary btn-sm rounded-pill px-3">
+                            Add +
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
