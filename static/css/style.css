@@ -1,0 +1,165 @@
+:root {
+    --bg-color: #f5f7fa;
+    --text-color: #1a1a1a;
+    --card-bg: #ffffff;
+    --input-bg: #f0f2f5;
+    --accent-color: #5841D8; /* Kraken Purple */
+    --accent-hover: #4531b2;
+    --navbar-bg: #ffffff;
+    --border-color: #e1e4e8;
+    --shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+[data-theme="dark"] {
+    --bg-color: #0d0d0d;
+    --text-color: #ffffff;
+    --card-bg: #1a1a1a;
+    --input-bg: #2c2c2c;
+    --accent-color: #7055f5;
+    --accent-hover: #8b75ff;
+    --navbar-bg: #1a1a1a;
+    --border-color: #333;
+    --shadow: 0 4px 20px rgba(0,0,0,0.5);
+}
+
+body {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.navbar {
+    background-color: var(--navbar-bg) !important;
+    border-bottom: 1px solid var(--border-color);
+    padding: 1rem 0;
+}
+
+.navbar-brand, .nav-link {
+    color: var(--text-color) !important;
+}
+
+/* Hero Section */
+.hero-section {
+    background: linear-gradient(135deg, var(--accent-color), #a4508b);
+    color: white;
+    padding: 80px 0;
+    border-radius: 0 0 50px 50px;
+    margin-bottom: 40px;
+    box-shadow: 0 10px 30px rgba(88, 65, 216, 0.3);
+}
+
+/* Kraken Input */
+.kraken-input-group {
+    position: relative;
+    margin-bottom: 1.5rem;
+}
+
+.kraken-input {
+    width: 100%;
+    padding: 1.25rem 1rem 0.5rem;
+    background-color: var(--input-bg);
+    border: 1px solid transparent;
+    border-radius: 12px;
+    color: var(--text-color);
+    font-size: 1rem;
+    transition: all 0.2s;
+    outline: none;
+}
+
+.kraken-input:focus {
+    border-color: var(--accent-color);
+    background-color: var(--card-bg);
+    box-shadow: 0 0 0 4px rgba(88, 65, 216, 0.1);
+}
+
+.kraken-label {
+    position: absolute;
+    left: 1rem;
+    top: 1rem;
+    color: #888;
+    font-size: 1rem;
+    pointer-events: none;
+    transition: all 0.2s;
+}
+
+.kraken-input:focus ~ .kraken-label,
+.kraken-input:not(:placeholder-shown) ~ .kraken-label {
+    top: 0.4rem;
+    font-size: 0.75rem;
+    color: var(--accent-color);
+    font-weight: 600;
+}
+
+.card {
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    box-shadow: var(--shadow);
+}
+
+.btn-primary {
+    background-color: var(--accent-color);
+    border: none;
+    border-radius: 12px;
+    padding: 12px 20px;
+    font-weight: 600;
+}
+.btn-primary:hover {
+    background-color: var(--accent-hover);
+    transform: translateY(-2px);
+}
+
+/* Order Tracker */
+.track-line {
+    height: 4px;
+    background-color: var(--border-color);
+    width: 100%;
+    margin: 30px 0;
+    position: relative;
+    border-radius: 2px;
+}
+.track-progress {
+    height: 100%;
+    background-color: #00c853;
+    width: 0%;
+    border-radius: 2px;
+    transition: width 1s ease;
+}
+.step-dot {
+    width: 20px;
+    height: 20px;
+    background-color: var(--border-color);
+    border-radius: 50%;
+    position: absolute;
+    top: -8px;
+    transform: translateX(-50%);
+}
+.step-dot.active {
+    background-color: #00c853;
+    box-shadow: 0 0 0 4px rgba(0, 200, 83, 0.2);
+}
+.dot-1 { left: 0%; }
+.dot-2 { left: 50%; }
+.dot-3 { left: 100%; }
+
+.step-text {
+    position: absolute;
+    top: 20px;
+    transform: translateX(-50%);
+    font-size: 0.85rem;
+    color: var(--text-color);
+    width: 100px;
+    text-align: center;
+}
+
+/* Dark Mode Toggler Icon fix for mobile */
+.navbar-toggler {
+    border-color: var(--border-color);
+}
+.navbar-toggler-icon {
+    filter: invert(1);
+}
+[data-theme="light"] .navbar-toggler-icon {
+    filter: invert(0);
+}
