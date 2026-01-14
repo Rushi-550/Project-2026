@@ -1,0 +1,51 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="container mt-5">
+    <h2 class="fw-bold mb-4">Admin Dashboard</h2>
+
+    <div class="card p-4">
+        <h5 class="card-title mb-4">Live Orders</h5>
+        <div class="table-responsive">
+            <table class="table align-middle">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Customer</th>
+                        <th>Total</th>
+                        <th>Current Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for order in orders %}
+                    <tr>
+                        <td>#{{ order[0] }}</td>
+                        <td>{{ order[1] }}</td>
+                        <td>${{ order[2] }}</td>
+                        <td>
+                            <span class="badge 
+                                {% if order[3] == 'Pending' %}bg-warning
+                                {% elif order[3] == 'Preparing' %}bg-info
+                                {% else %}bg-success{% endif %}">
+                                {{ order[3] }}
+                            </span>
+                        </td>
+                        <td>
+                            <form action="{{ url_for('update_status') }}" method="POST" class="d-flex gap-2">
+                                <input type="hidden" name="order_id" value="{{ order[0] }}">
+                                <select name="status" class="form-select form-select-sm" style="width: 120px;">
+                                    <option value="Pending">Pending</option>
+                                    <option value="Preparing">Preparing</option>
+                                    <option value="Delivered">Delivered</option>
+                                </select>
+                                <button type="submit" class="btn btn-sm btn-outline-primary">Update</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

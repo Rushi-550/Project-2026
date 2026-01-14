@@ -1,0 +1,49 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="container mt-5">
+    <h2 class="fw-bold mb-4">Order History</h2>
+
+    {% if orders %}
+        {% for order in orders %}
+        <div class="card p-4 mb-4">
+            <div class="d-flex justify-content-between mb-4">
+                <div>
+                    <h5 class="fw-bold">Order #{{ order[0] }}</h5>
+                    <span class="text-muted small">{{ order[3] }}</span>
+                </div>
+                <div class="text-end">
+                    <h5 class="text-primary fw-bold">${{ order[2] }}</h5>
+                </div>
+            </div>
+
+            <!-- Visual Tracker -->
+            <div class="px-3">
+                <div class="track-line">
+                    <div class="track-progress" 
+                        style="width: 
+                        {% if order[4] == 'Pending' %}10%
+                        {% elif order[4] == 'Preparing' %}50%
+                        {% elif order[4] == 'Delivered' %}100%
+                        {% endif %};">
+                    </div>
+                    
+                    <div class="step-dot dot-1 active">
+                        <span class="step-text">Pending</span>
+                    </div>
+                    
+                    <div class="step-dot dot-2 {% if order[4] in ['Preparing', 'Delivered'] %}active{% endif %}">
+                        <span class="step-text">Preparing</span>
+                    </div>
+                    
+                    <div class="step-dot dot-3 {% if order[4] == 'Delivered' %}active{% endif %}">
+                        <span class="step-text">Delivered</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <p class="text-muted">You haven't placed any orders yet.</p>
+    {% endif %}
+</div>
+{% endblock %}

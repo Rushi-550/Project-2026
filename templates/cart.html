@@ -1,0 +1,48 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="container mt-5">
+    <h2 class="fw-bold mb-4">Your Order</h2>
+
+    {% if cart_items %}
+    <div class="card p-4">
+        <div class="table-responsive">
+            <table class="table align-middle">
+                <thead>
+                    <tr>
+                        <th class="text-muted small">ITEM</th>
+                        <th class="text-muted small text-end">PRICE</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in cart_items %}
+                    <tr>
+                        <td class="fw-bold">{{ item[1] }}</td>
+                        <td class="text-end">${{ item[2] }}</td>
+                    </tr>
+                    {% endfor %}
+                    <tr class="border-0">
+                        <td class="text-end fw-bold pt-4">Total Amount</td>
+                        <td class="text-end fw-bold pt-4 fs-5 text-primary">${{ total }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="text-end mt-4">
+            <form action="{{ url_for('checkout') }}" method="POST">
+                <input type="hidden" name="total" value="{{ total }}">
+                <button type="submit" class="btn btn-primary px-5 py-3 rounded-pill fw-bold">
+                    Place Order <i class="fas fa-arrow-right ms-2"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+    {% else %}
+        <div class="text-center py-5">
+            <i class="fas fa-shopping-basket fa-3x text-muted mb-3"></i>
+            <h3>Your cart is empty</h3>
+            <a href="{{ url_for('menu') }}" class="btn btn-primary mt-3">Browse Menu</a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

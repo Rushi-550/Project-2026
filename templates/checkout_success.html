@@ -1,0 +1,9 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="text-center text-white mt-5">
+    <i class="fas fa-check-circle fa-5x text-success mb-3"></i>
+    <h1>Order Placed!</h1>
+    <p class="lead">Your pizza is being prepared. It will be with you shortly.</p>
+    <a href="{{ url_for('menu') }}" class="btn btn-warning mt-3">Order More</a>
+</div>
+{% endblock %}
