@@ -1,45 +1,98 @@
 {% extends "layout.html" %}
 {% block content %}
 
-<!-- Hero Section -->
-<div class="hero-section text-center">
-    <div class="container">
-        <h1 class="display-4 fw-bold">Craving Something Hot?</h1>
-        <p class="lead mb-4">Hand-tossed, stone-baked, and delivered lightning fast.</p>
-        <a href="#menu" class="btn btn-light text-primary fw-bold px-4 py-2 rounded-pill">View Menu</a>
+<!-- Customize Modal -->
+<div class="modal fade" id="customizeModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header border-0">
+                <h5 class="modal-title fw-bold" id="modalPizzaName">Pizza Name</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p class="text-muted">Base Price: <span id="modalBasePrice"></span></p>
+                
+                <div class="mb-3">
+                    <label class="fw-bold mb-2">Size</label>
+                    <select class="form-select kraken-input" id="sizeSelect" onchange="updatePrice()">
+                        <option value="Small">Small (-₹50)</option>
+                        <option value="Medium" selected>Medium (Standard)</option>
+                        <option value="Large">Large (+₹150)</option>
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label class="fw-bold mb-2">Crust</label>
+                    <select class="form-select kraken-input" id="crustSelect" onchange="updatePrice()">
+                        <option value="Hand Tossed">Hand Tossed</option>
+                        <option value="Wheat Thin">Wheat Thin Crust</option>
+                        <option value="Cheese Burst">Cheese Burst (+₹99)</option>
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label class="fw-bold mb-2">Extra Toppings</label>
+                    <div class="form-check">
+                        <input class="form-check-input extra-check" type="checkbox" value="40" data-name="Extra Cheese" onchange="updatePrice()">
+                        <label class="form-check-label">Extra Cheese (+₹40)</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input extra-check" type="checkbox" value="50" data-name="Mushrooms" onchange="updatePrice()">
+                        <label class="form-check-label">Mushrooms (+₹50)</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input extra-check" type="checkbox" value="60" data-name="Jalapenos" onchange="updatePrice()">
+                        <label class="form-check-label">Jalapenos (+₹60)</label>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-between align-items-center mt-4">
+                    <h4 class="fw-bold mb-0 text-warning">₹<span id="finalPrice">0</span></h4>
+                    <button class="btn btn-warning px-4" onclick="addToCartWithCustomization()">ADD TO CART</button>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
+<div class="hero-section text-center mb-5" style="background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('https://images.unsplash.com/photo-1513104890138-7c749659a591?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80'); background-size: cover; border-radius: 0 0 30px 30px; padding: 100px 20px;">
+    <h1 class="display-3 fw-bold text-white mb-3">SLICE OF HEAVEN</h1>
+    <p class="lead text-light mb-4">Authentic wood-fired pizzas delivered in minutes.</p>
+    <a href="#menu" class="btn btn-warning btn-lg px-5 rounded-pill shadow">ORDER NOW</a>
+</div>
+
 <div class="container mb-5" id="menu">
-    <h3 class="fw-bold mb-4">Our Signature Pizzas</h3>
     <div class="row g-4">
         {% for product in products %}
-        <div class="col-md-3">
-            <div class="card h-100 border-0">
-                <!-- Image Placeholder -->
-                <div style="height: 200px; background-color: #f0f2f5; display: flex; align-items: center; justify-content: center; border-radius: 16px 16px 0 0;">
-                    <i class="fas fa-pizza-slice fa-4x text-muted"></i>
+        <div class="col-md-4 col-lg-3">
+            <div class="card h-100 border-0 shadow-sm">
+                <!-- Image Wrapper -->
+                <div style="height: 220px; overflow: hidden; border-radius: 8px 8px 0 0; position: relative;">
+                    <span class="badge bg-warning text-dark position-absolute top-0 end-0 m-3">{{ product[6] }}</span> <!-- Cuisine -->
+                    <!-- Placeholder logic -->
+                    <div style="width:100%; height:100%; background:#222; display:flex; align-items:center; justify-content:center;">
+                        <i class="fas fa-pizza-slice fa-4x text-muted"></i>
+                    </div>
                 </div>
                 
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-start">
-                        <h5 class="card-title fw-bold">{{ product[1] }}</h5>
-                        <span class="badge bg-light text-dark">{{ product[3] }}</span>
+                <div class="card-body d-flex flex-column">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <h5 class="fw-bold mb-0">{{ product[1] }}</h5>
+                        {% if product[3] == 'Veg' %}
+                            <i class="fas fa-leaf text-success" title="Veg"></i>
+                        {% else %}
+                            <i class="fas fa-drumstick-bite text-danger" title="Non-Veg"></i>
+                        {% endif %}
                     </div>
                     
-                    <p class="text-muted small">
-                        {% if 'Spicy' in product[1] %}
-                            <i class="fas fa-fire text-danger"></i> Spicy & Hot!
-                        {% else %}
-                            Classic Italian taste.
-                        {% endif %}
-                    </p>
+                    <p class="small text-muted mb-3 flex-grow-1">{{ product[5] }}</p> <!-- Description -->
 
                     <div class="d-flex justify-content-between align-items-center mt-3">
-                        <span class="h5 mb-0 fw-bold text-primary">${{ product[2] }}</span>
-                        <a href="{{ url_for('add_to_cart', product_id=product[0]) }}" class="btn btn-primary btn-sm rounded-pill px-3">
-                            Add +
-                        </a>
+                        <h5 class="fw-bold mb-0 text-warning">₹{{ product[2] | int }}</h5>
+                        <button class="btn btn-sm btn-outline-warning fw-bold px-3 rounded-pill" 
+                                onclick="openCustomizeModal('{{ product[0] }}', '{{ product[1] }}', '{{ product[2] }}')">
+                            CUSTOMIZE
+                        </button>
                     </div>
                 </div>
             </div>
