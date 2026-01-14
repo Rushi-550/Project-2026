@@ -1,7 +1,8 @@
-from flask import Flask, render_template, request, redirect, url_for, session, flash
+from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify
 import sqlite3
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
+import json
 
 app = Flask(__name__)
 app.secret_key = 'midnight_slice_secure_key'
@@ -11,39 +12,38 @@ def init_db():
     conn = sqlite3.connect('pizza.db')
     c = conn.cursor()
     
-    # Users
     c.execute('''CREATE TABLE IF NOT EXISTS users 
                  (id INTEGER PRIMARY KEY, username TEXT, password TEXT, role TEXT)''')
     
-    # Products
+    # Added description and cuisine
     c.execute('''CREATE TABLE IF NOT EXISTS products 
-                 (id INTEGER PRIMARY KEY, name TEXT, price REAL, category TEXT, image TEXT)''')
+                 (id INTEGER PRIMARY KEY, name TEXT, price REAL, category TEXT, image TEXT, description TEXT, cuisine TEXT)''')
     
-    # Orders
+    # Orders now store JSON for complex cart items
     c.execute('''CREATE TABLE IF NOT EXISTS orders 
-                 (id INTEGER PRIMARY KEY, user_id INTEGER, total_amount REAL, status TEXT, date TEXT)''')
+                 (id INTEGER PRIMARY KEY, user_id INTEGER, total_amount REAL, status TEXT, date TEXT, items_json TEXT)''')
     
-    # Admin Creation
+    # Admin
     c.execute("SELECT * FROM users WHERE username='admin'")
     if not c.fetchone():
         hashed_pw = generate_password_hash('admin123')
         c.execute("INSERT INTO users (username, password, role) VALUES (?, ?, ?)", 
                   ('admin', hashed_pw, 'admin'))
     
-    # Check/Add Dummy Pizzas
+    # Enhanced Menu Data
     c.execute("SELECT * FROM products")
     if not c.fetchone():
         pizzas = [
-            ('Margherita Classic', 12.99, 'Veg', 'p1.jpg'),
-            ('Pepperoni Feast', 15.99, 'Non-Veg', 'p2.jpg'),
-            ('Spicy Inferno', 16.50, 'Non-Veg', 'p3.jpg'),
-            ('BBQ Chicken', 16.99, 'Non-Veg', 'p4.jpg'),
-            ('Veggie Supreme', 14.50, 'Veg', 'p5.jpg'),
-            ('Mexican Green Wave', 15.50, 'Veg (Spicy)', 'p6.jpg'),
-            ('Chicken Dominator', 18.99, 'Non-Veg', 'p7.jpg'),
-            ('Cheese Burst', 13.99, 'Veg', 'p8.jpg')
+            ('Margherita Classic', 299.00, 'Veg', 'p1.jpg', 'San Marzano tomato sauce, fresh mozzarella, basil, EVOO.', 'Italian'),
+            ('Pepperoni Feast', 449.00, 'Non-Veg', 'p2.jpg', 'Double pepperoni, mozzarella, signature spicy sauce.', 'American'),
+            ('Spicy Inferno', 499.00, 'Non-Veg', 'p3.jpg', 'Jalapeños, paprika, spicy chicken, hot sauce drizzle.', 'Mexican'),
+            ('BBQ Chicken', 479.00, 'Non-Veg', 'p4.jpg', 'Smokey BBQ chicken, red onions, cilantro, cheddar blend.', 'American'),
+            ('Veggie Supreme', 399.00, 'Veg', 'p5.jpg', 'Bell peppers, onions, mushrooms, olives, corn.', 'Italian'),
+            ('Paneer Tikka', 429.00, 'Veg', 'p6.jpg', 'Marinated paneer, tandoori sauce, onions, mint mayo.', 'Indian'),
+            ('Chicken Dominator', 599.00, 'Non-Veg', 'p7.jpg', 'Loaded with chicken tikka, sausage, salami, and herbs.', 'Fusion'),
+            ('Cheese Burst', 349.00, 'Veg', 'p8.jpg', 'Overloaded with liquid cheese and mozzarella blend.', 'American')
         ]
-        c.executemany("INSERT INTO products (name, price, category, image) VALUES (?, ?, ?, ?)", pizzas)
+        c.executemany("INSERT INTO products (name, price, category, image, description, cuisine) VALUES (?, ?, ?, ?, ?, ?)", pizzas)
         
     conn.commit()
     conn.close()
@@ -74,7 +74,6 @@ def login():
             session['user_id'] = user[0]
             session['username'] = user[1]
             session['role'] = user[3]
-            # Restore cart if needed? For now, we clear to avoid stale data
             if user[3] == 'admin':
                 return redirect(url_for('admin_dashboard'))
             return redirect(url_for('menu'))
@@ -107,7 +106,6 @@ def register():
 
 @app.route('/menu')
 def menu():
-    # Allow viewing menu without login, but redirect to login on add
     conn = sqlite3.connect('pizza.db')
     c = conn.cursor()
     c.execute("SELECT * FROM products")
@@ -115,55 +113,70 @@ def menu():
     conn.close()
     return render_template('index.html', products=products)
 
-@app.route('/add_to_cart/<int:product_id>')
-def add_to_cart(product_id):
+# NEW: Advanced Add to Cart with Customization
+@app.route('/add_to_cart', methods=['POST'])
+def add_to_cart():
     if 'user_id' not in session:
-        flash('Please login to order', 'error')
-        return redirect(url_for('login'))
+        return jsonify({'status': 'error', 'message': 'Please login first'})
     
     if 'cart' not in session:
         session['cart'] = []
     
-    session['cart'].append(product_id)
+    # Get data from JSON request (sent by JavaScript)
+    data = request.json
+    
+    cart_item = {
+        'id': data['id'],
+        'name': data['name'],
+        'base_price': float(data['price']),
+        'size': data['size'],
+        'crust': data['crust'],
+        'extras': data['extras'], # List of extra toppings
+        'total_price': float(data['total_price'])
+    }
+    
+    session['cart'].append(cart_item)
     session.modified = True
-    flash('Added to cart!', 'success')
-    return redirect(url_for('menu'))
+    
+    return jsonify({'status': 'success', 'cart_count': len(session['cart'])})
 
 @app.route('/cart')
 def cart():
     if 'user_id' not in session:
         return redirect(url_for('login'))
         
-    cart_ids = session.get('cart', [])
-    cart_items = []
-    total = 0
+    cart_items = session.get('cart', [])
+    total = sum(item['total_price'] for item in cart_items)
     
-    conn = sqlite3.connect('pizza.db')
-    c = conn.cursor()
-    
-    for pid in cart_ids:
-        c.execute("SELECT * FROM products WHERE id=?", (pid,))
-        product = c.fetchone()
-        if product:
-            cart_items.append(product)
-            total += product[2]
-            
-    conn.close()
     return render_template('cart.html', cart_items=cart_items, total=round(total, 2))
+
+@app.route('/remove_from_cart/<int:index>')
+def remove_from_cart(index):
+    if 'cart' in session and len(session['cart']) > index:
+        del session['cart'][index]
+        session.modified = True
+    return redirect(url_for('cart'))
 
 @app.route('/checkout', methods=['POST'])
 def checkout():
     if 'user_id' not in session:
         return redirect(url_for('login'))
     
+    cart_items = session.get('cart', [])
+    if not cart_items:
+        return redirect(url_for('menu'))
+
     total = float(request.form['total'])
     user_id = session['user_id']
-    date_now = datetime.now().strftime("%Y-%m-%d %H:%M")
+    date_now = datetime.now().strftime("%Y-%m-%d %I:%M %p")
+    
+    # Store cart items as JSON string in DB for history
+    items_json = json.dumps(cart_items)
     
     conn = sqlite3.connect('pizza.db')
     c = conn.cursor()
-    c.execute("INSERT INTO orders (user_id, total_amount, status, date) VALUES (?, ?, ?, ?)", 
-              (user_id, total, 'Pending', date_now))
+    c.execute("INSERT INTO orders (user_id, total_amount, status, date, items_json) VALUES (?, ?, ?, ?, ?)", 
+              (user_id, total, 'Pending', date_now, items_json))
     conn.commit()
     conn.close()
     
@@ -190,11 +203,22 @@ def admin_dashboard():
         
     conn = sqlite3.connect('pizza.db')
     c = conn.cursor()
-    c.execute("SELECT orders.id, users.username, orders.total_amount, orders.status FROM orders JOIN users ON orders.user_id = users.id ORDER BY orders.id DESC")
+    c.execute("SELECT orders.id, users.username, orders.total_amount, orders.status, orders.date, orders.items_json FROM orders JOIN users ON orders.user_id = users.id ORDER BY orders.id DESC")
     orders = c.fetchall()
     conn.close()
     
-    return render_template('admin.html', orders=orders)
+    # Process JSON items for display
+    formatted_orders = []
+    for order in orders:
+        try:
+            items = json.loads(order[5])
+            item_summary = ", ".join([f"{i['size']} {i['name']}" for i in items])
+        except:
+            item_summary = "Standard Order"
+        
+        formatted_orders.append(list(order) + [item_summary])
+
+    return render_template('admin.html', orders=formatted_orders)
 
 @app.route('/update_status', methods=['POST'])
 def update_status():
@@ -210,7 +234,6 @@ def update_status():
     conn.commit()
     conn.close()
     
-    flash(f'Order #{order_id} updated to {new_status}', 'success')
     return redirect(url_for('admin_dashboard'))
 
 @app.route('/logout')
@@ -219,4 +242,4 @@ def logout():
     return redirect(url_for('login'))
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, host='0.0.0.0', port=5500)
