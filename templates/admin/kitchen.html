@@ -1,0 +1,85 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="container-fluid px-4 py-5">
+    <div class="d-flex justify-content-between align-items-center mb-5">
+        <h2 class="fw-bold display-6">Live Kitchen Feed</h2>
+        <div class="d-flex align-items-center gap-3">
+            <span class="badge bg-success p-2 pulse-badge"><i class="fas fa-circle me-2"></i> Live Service</span>
+            <span class="text-muted small font-monospace" id="clock">--:--:--</span>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        {% for order in orders %}
+        <div class="col-md-6 col-lg-4 col-xl-3">
+            <div class="card menu-card shadow-lg h-100 border-2 {{ 'border-warning' if order[3] == 'Pending' else 'border-info' }}">
+                
+                <div class="card-header bg-transparent d-flex justify-content-between align-items-center py-3">
+                    <span class="fw-bold h5 mb-0">#{{ order[0] }}</span>
+                    <span class="badge {{ 'bg-danger' if order[6] == 'Delivery' else 'bg-primary' }}">
+                        {{ order[6] }}
+                    </span>
+                </div>
+                
+                <div class="card-body">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="fw-bold text-primary">{{ order[1] }}</span>
+                        <small class="text-muted">{{ order[4].split(' ')[1] }} {{ order[4].split(' ')[2] }}</small>
+                    </div>
+
+                    <div class="mb-3 p-2 bg-dark bg-opacity-10 rounded small text-muted">
+                        <i class="fas fa-map-marker-alt me-1"></i> {{ order[7] }}
+                    </div>
+                    
+                    <div class="order-items-container border-top border-secondary pt-2" style="max-height: 200px; overflow-y: auto;">
+                        {% if order[8] %}
+                            {% for item in order[8] %}
+                            <div class="mb-2">
+                                <div class="fw-bold">{{ item.qty }}x {{ item.name }}</div>
+                                <div class="small text-muted ps-2 border-start border-2 border-secondary">
+                                    {{ item.size }} | {{ item.crust }}
+                                    {% if item.extras %}
+                                    <div class="text-warning">+ {{ item.extras|join(', ') }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                            <p class="text-danger small">Error: No items</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="card-footer bg-transparent p-3 border-0">
+                    <form action="{{ url_for('update_status') }}" method="POST" class="d-grid">
+                        <input type="hidden" name="order_id" value="{{ order[0] }}">
+                        
+                        {% if order[3] == 'Pending' %}
+                            <button name="status" value="Preparing" class="btn btn-warning fw-bold text-dark shadow-sm">
+                                <i class="fas fa-fire me-2"></i> Start Cooking
+                            </button>
+                        {% elif order[3] == 'Preparing' %}
+                            <button name="status" value="Delivered" class="btn btn-success fw-bold text-white shadow-sm">
+                                <i class="fas fa-check me-2"></i> Ready / Delivered
+                            </button>
+                        {% endif %}
+                    </form>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    
+    {% if not orders %}
+    <div class="text-center py-5 text-muted opacity-50">
+        <i class="fas fa-utensils fa-5x mb-3"></i>
+        <h3>All caught up!</h3>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+    setInterval(() => { document.getElementById('clock').innerText = new Date().toLocaleTimeString(); }, 1000);
+    setTimeout(() => { location.reload(); }, 10000);
+</script>
+{% endblock %}

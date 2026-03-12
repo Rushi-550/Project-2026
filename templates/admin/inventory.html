@@ -1,0 +1,185 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="container py-5">
+    <div class="d-flex justify-content-between align-items-center mb-5">
+        <div>
+            <h2 class="fw-bold display-6">Inventory Management</h2>
+            <p class="text-muted">Track stocks, manage inventory, and audit logs.</p>
+        </div>
+        <button class="btn btn-primary rounded-pill px-4" data-bs-toggle="modal" data-bs-target="#addIngredientModal">
+            <i class="fas fa-plus me-2"></i> New Item
+        </button>
+    </div>
+
+    <ul class="nav nav-pills mb-4" id="inventoryTabs" role="tablist">
+        <li class="nav-item">
+            <button class="nav-link active rounded-pill px-4" id="stock-tab" data-bs-toggle="tab" data-bs-target="#stock-view">
+                <i class="fas fa-boxes me-2"></i> Current Stock
+            </button>
+        </li>
+        
+        <li class="nav-item">
+            <button class="nav-link rounded-pill px-4" id="logs-tab" data-bs-toggle="tab" data-bs-target="#logs-view">
+                <i class="fas fa-history me-2"></i> Audit Logs
+            </button>
+        </li>
+    </ul>
+
+    <div class="tab-content" id="inventoryTabContent">
+        
+        <div class="tab-pane fade show active" id="stock-view">
+            <div class="card menu-card shadow-lg border-0">
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table align-middle mb-0 table-hover">
+                            <thead class="bg-dark text-white">
+                                <tr>
+                                    <th class="ps-4 py-3">Ingredient Name</th>
+                                    <th>Status</th>
+                                    <th>Quantity</th>
+                                    <th>Stock Level</th>
+                                    <th class="text-end pe-4">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in ingredients %}
+                                <tr>
+                                    <td class="ps-4 fw-bold">{{ item[1] }}</td>
+                                    <td>
+                                        {% if item[2] <= item[4] %}
+                                            <span class="badge bg-danger">Low Stock</span>
+                                        {% else %}
+                                            <span class="badge bg-success">Good</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="fw-bold font-monospace">{{ item[2] }} <small class="text-muted">{{ item[3] }}</small></td>
+                                    <td style="width: 200px;">
+                                        <div class="progress" style="height: 6px;">
+                                            <div class="progress-bar {{ 'bg-danger' if item[2] <= item[4] else 'bg-primary' }}" 
+                                                 role="progressbar" style="width: {{ '100' if item[2] > 5000 else (item[2]/50) }}%"></div>
+                                        </div>
+                                    </td>
+                                    <td class="text-end pe-4">
+                                        <button class="btn btn-sm btn-outline-secondary" 
+                                                onclick="openUpdateModal('{{ item[0] }}', '{{ item[1] }}', '{{ item[3] }}')">
+                                            <i class="fas fa-pen"></i> Adjust
+                                        </button>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        
+
+        <div class="tab-pane fade" id="logs-view">
+            <div class="card menu-card shadow-lg border-0">
+                <div class="card-header bg-transparent border-bottom p-3">
+                    <h5 class="fw-bold mb-0">Recent Activity</h5>
+                </div>
+                <div class="card-body p-0">
+                    <table class="table table-striped mb-0">
+                        <thead>
+                            <tr>
+                                <th class="ps-4">Time</th>
+                                <th class="w-75">Message</th>
+                            </tr>
+                        </thead>
+                        <tbody class="font-monospace small">
+                            {% for log in logs %}
+                            <tr>
+                                <td class="ps-4 text-muted" style="white-space:nowrap;">{{ log[2] }}</td>
+                                <td class="fw-bold">{{ log[1] }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="addIngredientModal" tabindex="-1">
+    <div class="modal-dialog">
+        <form action="{{ url_for('add_ingredient') }}" method="POST">
+            <div class="modal-content bg-dark text-white">
+                <div class="modal-header border-secondary">
+                    <h5 class="modal-title">Add New Ingredient</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label>Name</label>
+                        <input type="text" name="name" class="form-control" required>
+                    </div>
+                    <div class="row">
+                        <div class="col-6 mb-3">
+                            <label>Initial Qty</label>
+                            <input type="number" step="0.01" name="quantity" class="form-control" required>
+                        </div>
+                        <div class="col-6 mb-3">
+                            <label>Unit (e.g. grams)</label>
+                            <input type="text" name="unit" class="form-control" required>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label>Low Stock Warning Level</label>
+                        <input type="number" step="0.01" name="threshold" class="form-control" value="1000">
+                    </div>
+                </div>
+                <div class="modal-footer border-secondary">
+                    <button type="submit" class="btn btn-primary">Add Item</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="modal fade" id="updateStockModal" tabindex="-1">
+    <div class="modal-dialog">
+        <form action="{{ url_for('update_ingredient') }}" method="POST">
+            <div class="modal-content bg-dark text-white">
+                <div class="modal-header border-secondary">
+                    <h5 class="modal-title">Adjust Stock: <span id="updateName"></span></h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" name="id" id="updateId">
+                    <div class="mb-3">
+                        <label>Change Amount (+ to add, - to remove)</label>
+                        <div class="input-group">
+                            <input type="number" step="0.01" name="change_amount" class="form-control" placeholder="-500">
+                            <span class="input-group-text bg-secondary text-white" id="updateUnit">units</span>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label>Reason</label>
+                        <select name="reason" class="form-select bg-dark text-white">
+                            <option value="Restock">Restock Delivery</option>
+                            <option value="Spoilage">Spoilage / Waste</option>
+                            <option value="Correction">Inventory Correction</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer border-secondary">
+                    <button type="submit" class="btn btn-primary">Save Adjustment</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function openUpdateModal(id, name, unit) {
+    document.getElementById('updateId').value = id;
+    document.getElementById('updateName').innerText = name;
+    document.getElementById('updateUnit').innerText = unit;
+    new bootstrap.Modal(document.getElementById('updateStockModal')).show();
+}
+</script>
+{% endblock %}

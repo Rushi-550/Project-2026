@@ -1,0 +1,109 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="container py-5">
+    <div class="d-flex justify-content-between align-items-center mb-5">
+        <div>
+            <h2 class="fw-bold display-6">Admin Dashboard</h2>
+            <p class="text-muted">Overview & Quick Actions</p>
+        </div>
+        <span class="badge bg-primary fs-6 px-3 py-2 rounded-pill">
+            Admin Mode
+        </span>
+    </div>
+
+    <h5 class="fw-bold text-muted mb-3 text-uppercase small ls-1">Performance Analytics</h5>
+    <div class="row g-4 mb-5">
+        <div class="col-md-6">
+            <div class="card menu-card border-0 shadow-lg h-100 p-4 position-relative overflow-hidden">
+                <div class="d-flex justify-content-between align-items-center position-relative z-2">
+                    <div>
+                        <p class="text-warning text-uppercase fw-bold small mb-1"><i class="fas fa-crown me-2"></i> Top Selling Item</p>
+                        <h2 class="fw-bold mb-0 text-main">{{ best_seller[0] }}</h2>
+                        <span class="badge bg-warning text-dark mt-2">{{ best_seller[1] }} Sold Lifetime</span>
+                    </div>
+                    <div class="bg-warning bg-opacity-10 p-4 rounded-circle text-warning">
+                        <i class="fas fa-trophy fa-3x"></i>
+                    </div>
+                </div>
+                <div class="position-absolute top-0 end-0 w-50 h-100 bg-gradient-to-l from-warning opacity-10" style="background: linear-gradient(90deg, transparent, rgba(252, 211, 77, 0.1));"></div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card menu-card border-0 shadow-lg h-100 p-4">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <p class="text-success text-uppercase fw-bold small mb-1">Total Revenue</p>
+                        <h2 class="fw-bold text-success mb-0">₹{{ revenue }}</h2>
+                        <span class="text-muted small">All time earnings</span>
+                    </div>
+                    <div class="bg-success bg-opacity-10 p-4 rounded-circle text-success">
+                        <i class="fas fa-wallet fa-3x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4 mb-5">
+        <div class="col-md-4">
+            <a href="{{ url_for('admin_kitchen') }}" class="text-decoration-none">
+                <div class="card menu-card border-0 shadow h-100 p-4 hover-scale text-center">
+                    <div class="mb-3 text-primary"><i class="fas fa-fire fa-2x"></i></div>
+                    <h5 class="fw-bold text-main">Live Kitchen</h5>
+                    <p class="text-muted small">Manage {{ pending }} Active Orders</p>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-4">
+            <a href="{{ url_for('admin_inventory') }}" class="text-decoration-none">
+                <div class="card menu-card border-0 shadow h-100 p-4 hover-scale text-center">
+                    <div class="mb-3 text-info"><i class="fas fa-boxes fa-2x"></i></div>
+                    <h5 class="fw-bold text-main">Inventory</h5>
+                    <p class="text-muted small">Stock & Recipes</p>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-4">
+            <div class="card menu-card border-0 shadow h-100 p-4 text-center">
+                <div class="mb-3 text-secondary"><i class="fas fa-receipt fa-2x"></i></div>
+                <h5 class="fw-bold text-main">Total Orders</h5>
+                <p class="text-muted small">{{ total }} processed</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card menu-card border-0 shadow">
+                <div class="card-header bg-transparent border-bottom p-4">
+                    <h5 class="fw-bold mb-0 text-danger"><i class="fas fa-exclamation-circle me-2"></i> Low Stock Alerts</h5>
+                </div>
+                <div class="card-body p-0">
+                    {% if low_stock %}
+                        <ul class="list-group list-group-flush">
+                            {% for item in low_stock %}
+                            <li class="list-group-item bg-transparent d-flex justify-content-between align-items-center p-3 border-secondary">
+                                <span class="fw-bold">{{ item[1] }}</span>
+                                <span class="badge bg-danger rounded-pill">Only {{ item[2] }} {{ item[3] }} left</span>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <div class="p-5 text-center text-muted">
+                            <i class="fas fa-check-circle fa-3x text-success mb-3 opacity-50"></i>
+                            <p>Inventory levels are healthy.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .hover-scale { transition: transform 0.2s; }
+    .hover-scale:hover { transform: translateY(-3px); cursor: pointer; }
+    .text-main { color: var(--text-main); }
+</style>
+{% endblock %}

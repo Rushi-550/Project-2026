@@ -4,62 +4,82 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Midnight Slice</title>
-    <!-- Bootstrap 5 CSS -->
+    <script>
+        document.documentElement.setAttribute('data-theme', localStorage.getItem('theme') || 'dark');
+    </script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-    <!-- Font Awesome -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <!-- Custom CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
 
     <nav class="navbar navbar-expand-lg sticky-top">
         <div class="container">
-            <a class="navbar-brand fw-bold" href="{{ url_for('index') }}">
-                <i class="fas fa-pizza-slice text-primary"></i> Midnight Slice
+            <a class="navbar-brand d-flex align-items-center gap-2" href="{{ url_for('index') }}">
+                <i class="fas fa-pizza-slice fa-lg"></i> 
+                <span>MIDNIGHT SLICE</span>
             </a>
             
-            <!-- Mobile Toggle Button -->
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon" style="filter: invert(0.5);"></span>
+            <button class="navbar-toggler bg-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
             </button>
 
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto align-items-center">
+                <ul class="navbar-nav ms-auto align-items-center gap-3">
                     {% if session.get('user_id') %}
                         {% if session.get('role') == 'admin' %}
-                             <li class="nav-item"><a class="nav-link" href="{{ url_for('admin_dashboard') }}">Admin Dashboard</a></li>
+                             <li class="nav-item"><a class="nav-link" href="{{ url_for('admin_dashboard') }}">Dashboard</a></li>
+                             <li class="nav-item"><a class="nav-link" href="{{ url_for('admin_kitchen') }}">Kitchen</a></li>
                         {% else %}
                              <li class="nav-item"><a class="nav-link" href="{{ url_for('menu') }}">Menu</a></li>
-                             <li class="nav-item"><a class="nav-link" href="{{ url_for('my_orders') }}">My Orders</a></li>
-                             <li class="nav-item">
-                                 <a class="nav-link btn btn-primary text-white px-3 mx-2" href="{{ url_for('cart') }}">
-                                    <i class="fas fa-shopping-bag"></i> Cart
+                             <li class="nav-item"><a class="nav-link" href="{{ url_for('my_orders') }}">History</a></li>
+                             <li class="nav-item position-relative">
+                                 <a class="nav-link" href="{{ url_for('cart') }}">
+                                    <i class="fas fa-shopping-bag fa-lg"></i>
+                                    <span id="cart-count-badge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" 
+                                          style="{{ 'display:none' if cart_count == 0 else '' }}">
+                                        {{ cart_count }}
+                                    </span>
                                  </a>
                              </li>
                         {% endif %}
-                        <li class="nav-item"><a class="nav-link" href="{{ url_for('logout') }}">Logout</a></li>
+                        <li class="nav-item">
+                            <a class="btn btn-outline-danger btn-sm rounded-pill px-3" href="{{ url_for('logout') }}">Logout</a>
+                        </li>
                     {% else %}
                         <li class="nav-item"><a class="nav-link" href="{{ url_for('login') }}">Login</a></li>
-                        <li class="nav-item"><a class="nav-link" href="{{ url_for('register') }}">Register</a></li>
+                        <li class="nav-item"><a class="btn btn-primary btn-sm rounded-pill px-4" href="{{ url_for('register') }}">Sign Up</a></li>
                     {% endif %}
                     
-                    <!-- Theme Toggle -->
                     <li class="nav-item ms-2">
-                        <button id="theme-toggle" class="btn btn-link nav-link">
-                            <i class="fas fa-moon"></i>
-                        </button>
+                        <button id="theme-toggle" class="btn nav-link p-0">
+                            <i class="fas fa-sun"></i> </button>
                     </li>
                 </ul>
             </div>
         </div>
     </nav>
 
-    {% block content %}{% endblock %}
+    <div class="main-wrapper">
+        {% block flash_messages %}
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="container mt-3">
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ 'danger' if category == 'error' else 'success' }} alert-dismissible fade show">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+        {% endblock %}
+        
+        {% block content %}{% endblock %}
+    </div>
 
-    <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="{{ url_for('static', filename='js/script.js') }}"></script>
 </body>

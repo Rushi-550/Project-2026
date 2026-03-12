@@ -1,165 +1,369 @@
 :root {
-    --bg-color: #f5f7fa;
-    --text-color: #1a1a1a;
-    --card-bg: #ffffff;
-    --input-bg: #f0f2f5;
-    --accent-color: #5841D8; /* Kraken Purple */
-    --accent-hover: #4531b2;
-    --navbar-bg: #ffffff;
-    --border-color: #e1e4e8;
-    --shadow: 0 4px 12px rgba(0,0,0,0.05);
+    /* DARK MODE (The V1 Identity) */
+    --bg-color: #0F1115;       /* Pitch Dark Grey/Black */
+    --surface-color: #181B21;  /* Slightly lighter for cards */
+    --primary-color: #FCD34D;  /* MIDNIGHT GOLD */
+    --primary-hover: #F59E0B;
+    --text-main: #FFFFFF;      /* Pure White text */
+    --text-muted: #9CA3AF;
+    --border-color: #2D3748;
+    --nav-link-color: #FFFFFF; /* Force white nav links in dark mode */
+    --shadow-card: 0 4px 6px -1px rgba(0, 0, 0, 0.7);
 }
 
-[data-theme="dark"] {
-    --bg-color: #0d0d0d;
-    --text-color: #ffffff;
-    --card-bg: #1a1a1a;
-    --input-bg: #2c2c2c;
-    --accent-color: #7055f5;
-    --accent-hover: #8b75ff;
-    --navbar-bg: #1a1a1a;
-    --border-color: #333;
-    --shadow: 0 4px 20px rgba(0,0,0,0.5);
+[data-theme="light"] {
+    /* LIGHT MODE (Royal Blue) */
+    --bg-color: #F3F4F6;
+    --surface-color: #FFFFFF;
+    --primary-color: #2563EB; /* Royal Blue */
+    --primary-hover: #1D4ED8;
+    --text-main: #111827;     /* Jet Black text */
+    --text-muted: #6B7280;
+    --border-color: #E5E7EB;
+    --nav-link-color: #111827; /* Dark nav links in light mode */
+    --shadow-card: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 }
 
 body {
     background-color: var(--bg-color);
-    color: var(--text-color);
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
-    transition: background-color 0.3s, color 0.3s;
+    color: var(--text-main);
+    font-family: 'Inter', sans-serif;
+    transition: background-color 0.3s ease, color 0.3s ease;
 }
 
+/* --- Typography Fixes --- */
+h1, h2, h3, h4, h5, h6 { color: var(--text-main); }
+.text-main { color: var(--text-main) !important; }
+
+/* --- Navbar (Fixed Visibility) --- */
 .navbar {
-    background-color: var(--navbar-bg) !important;
+    background-color: var(--surface-color) !important;
     border-bottom: 1px solid var(--border-color);
     padding: 1rem 0;
+    transition: background-color 0.3s;
 }
 
-.navbar-brand, .nav-link {
-    color: var(--text-color) !important;
+.navbar-brand {
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    color: var(--text-main) !important;
 }
 
-/* Hero Section */
-.hero-section {
-    background: linear-gradient(135deg, var(--accent-color), #a4508b);
+.navbar-brand i {
+    color: var(--primary-color); /* The Logo Icon follows the theme */
+}
+
+.nav-link {
+    color: var(--nav-link-color) !important; /* Forces visibility */
+    font-weight: 500;
+    transition: color 0.2s;
+}
+
+.nav-link:hover, .nav-link.active {
+    color: var(--primary-color) !important;
+}
+
+/* --- Hero Section (Restored V1 Look) --- */
+.hero-header {
+    width: 100%;
+    height: 400px;
+    margin-top: -1.5rem; /* Pull it up to touch navbar */
+    margin-bottom: 3rem;
+    position: relative;
+    overflow: hidden;
+    border-radius: 0 0 2rem 2rem; /* The "Rounded Bottom" Look */
+    box-shadow: var(--shadow-card);
+}
+
+.hero-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: brightness(0.4); /* Darken image so text pops */
+}
+
+/* --- Cards --- */
+.menu-card {
+    background-color: var(--surface-color);
+    border: 1px solid var(--border-color);
+    border-radius: 1rem;
+    overflow: hidden;
+    box-shadow: var(--shadow-card);
+    transition: transform 0.2s, border-color 0.2s;
+}
+
+.menu-card:hover {
+    transform: translateY(-5px);
+    border-color: var(--primary-color);
+}
+
+/* --- Buttons --- */
+.btn-primary {
+    background-color: var(--primary-color);
+    color: #000 !important; /* Always Black text on Gold/Blue buttons */
+    border: none;
+    font-weight: 700;
+}
+
+.btn-primary:hover {
+    background-color: var(--primary-hover);
+}
+
+.btn-outline-primary {
+    color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.btn-outline-primary:hover {
+    background-color: var(--primary-color);
+    color: #000;
+}
+
+/* --- Search Bar --- */
+.search-wrapper {
+    position: relative;
+}
+.search-input {
+    background-color: var(--surface-color);
+    border: 2px solid var(--border-color);
+    color: var(--text-main);
+    padding: 1rem 1.5rem;
+    border-radius: 50px;
+    width: 100%;
+    outline: none;
+}
+.search-input:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(252, 211, 77, 0.2);
+}
+
+/* --- Stepper (Orders) --- */
+.stepper-item.active .step-counter {
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+}
+.stepper-item.completed .step-counter {
+    background-color: #10B981; /* Success Green */
+    border-color: #10B981;
     color: white;
-    padding: 80px 0;
-    border-radius: 0 0 50px 50px;
-    margin-bottom: 40px;
-    box-shadow: 0 10px 30px rgba(88, 65, 216, 0.3);
 }
 
-/* Kraken Input */
-.kraken-input-group {
+/* --- MODERN PROGRESS STEPPER --- */
+.stepper-wrapper {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    position: relative;
+}
+
+/* The Connecting Line (Background) */
+.stepper-wrapper::before {
+    content: '';
+    position: absolute;
+    top: 20px; /* Aligns with center of circle */
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background-color: var(--border-color); /* Grey line by default */
+    z-index: 1;
+    transition: all 0.5s ease;
+}
+
+/* The Nodes */
+.stepper-item {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1;
+}
+
+/* The Circle Icon */
+.step-counter {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: var(--surface-color); /* Matches card bg */
+    border: 3px solid var(--border-color);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 8px;
+    font-size: 1.1rem;
+    color: var(--text-muted);
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* Bouncy transition */
+}
+
+/* The Text Label */
+.step-name {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* --- ACTIVE STATE (Current Stage) --- */
+.stepper-item.active .step-counter {
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+    background-color: var(--surface-color);
+    box-shadow: 0 0 0 4px rgba(252, 211, 77, 0.2); /* Gold Glow */
+    transform: scale(1.1);
+}
+
+[data-theme="light"] .stepper-item.active .step-counter {
+    box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.2); /* Blue Glow */
+}
+
+.stepper-item.active .step-name {
+    color: var(--text-main);
+}
+
+/* --- COMPLETED STATE (Past Stages) --- */
+.stepper-item.completed .step-counter {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+    color: #111; /* Black icon on Gold/Blue */
+}
+
+/* Progress Line Fill Logic (Advanced) */
+/* If the middle item is active/completed, fill the first half of the line */
+.stepper-item:nth-child(2).active ~ .stepper-item::before, 
+.stepper-item:nth-child(2).completed ~ .stepper-item::before {
+   /* Note: CSS can't easily fill "half" a line without complex gradients. 
+      For simplicity, the nodes lighting up creates the visual connection. */
+}
+
+
+/* --- MODERN AUTH (Login/Register) --- */
+
+/* 1. The Glass Card */
+.auth-card {
+    background: rgba(var(--surface-rgb), 0.8); /* See note below about RGB */
+    background-color: var(--surface-color); /* Fallback */
+    border: 1px solid var(--border-color);
+    border-radius: 1.5rem; /* Softer, rounder corners */
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2); /* Deep shadow for depth */
+    padding: 3rem 2.5rem;
+    max-width: 420px;
+    width: 100%;
+    position: relative;
+    overflow: hidden;
+    animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1); /* Smooth entry */
+}
+
+/* 2. The "Kraken" Floating Inputs */
+.modern-input-group {
     position: relative;
     margin-bottom: 1.5rem;
 }
 
-.kraken-input {
+.modern-input {
     width: 100%;
-    padding: 1.25rem 1rem 0.5rem;
-    background-color: var(--input-bg);
-    border: 1px solid transparent;
-    border-radius: 12px;
-    color: var(--text-color);
+    padding: 1rem 0.75rem;
     font-size: 1rem;
-    transition: all 0.2s;
+    color: var(--text-main); /* FIXES VISIBILITY IN DARK MODE */
+    background: transparent;
+    border: 2px solid var(--border-color);
+    border-radius: 0.75rem;
     outline: none;
+    transition: all 0.3s ease;
 }
 
-.kraken-input:focus {
-    border-color: var(--accent-color);
-    background-color: var(--card-bg);
-    box-shadow: 0 0 0 4px rgba(88, 65, 216, 0.1);
-}
-
-.kraken-label {
-    position: absolute;
-    left: 1rem;
-    top: 1rem;
-    color: #888;
-    font-size: 1rem;
-    pointer-events: none;
-    transition: all 0.2s;
-}
-
-.kraken-input:focus ~ .kraken-label,
-.kraken-input:not(:placeholder-shown) ~ .kraken-label {
-    top: 0.4rem;
-    font-size: 0.75rem;
-    color: var(--accent-color);
-    font-weight: 600;
-}
-
-.card {
-    background-color: var(--card-bg);
-    border: 1px solid var(--border-color);
-    border-radius: 16px;
-    box-shadow: var(--shadow);
-}
-
-.btn-primary {
-    background-color: var(--accent-color);
-    border: none;
-    border-radius: 12px;
-    padding: 12px 20px;
-    font-weight: 600;
-}
-.btn-primary:hover {
-    background-color: var(--accent-hover);
+/* Input Focus State - The "Glow" */
+.modern-input:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 4px rgba(var(--primary-rgb), 0.1); /* Subtle glow */
     transform: translateY(-2px);
 }
 
-/* Order Tracker */
-.track-line {
-    height: 4px;
-    background-color: var(--border-color);
+/* The Label Transition */
+.modern-label {
+    position: absolute;
+    left: 1rem;
+    top: 1rem;
+    padding: 0 0.25rem;
+    background-color: var(--surface-color); /* Hides the line behind it */
+    color: var(--text-muted);
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    pointer-events: none; /* Let clicks pass through to input */
+}
+
+/* Move label up when focused or has text */
+.modern-input:focus ~ .modern-label,
+.modern-input:not(:placeholder-shown) ~ .modern-label {
+    top: -0.6rem;
+    left: 0.8rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--primary-color);
+    z-index: 10;
+}
+
+/* 3. The Submit Button */
+.btn-auth {
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
+    color: #000; /* Always black text for contrast on Gold/Blue */
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    border: none;
+    padding: 1rem;
+    border-radius: 0.75rem;
     width: 100%;
-    margin: 30px 0;
-    position: relative;
-    border-radius: 2px;
-}
-.track-progress {
-    height: 100%;
-    background-color: #00c853;
-    width: 0%;
-    border-radius: 2px;
-    transition: width 1s ease;
-}
-.step-dot {
-    width: 20px;
-    height: 20px;
-    background-color: var(--border-color);
-    border-radius: 50%;
-    position: absolute;
-    top: -8px;
-    transform: translateX(-50%);
-}
-.step-dot.active {
-    background-color: #00c853;
-    box-shadow: 0 0 0 4px rgba(0, 200, 83, 0.2);
-}
-.dot-1 { left: 0%; }
-.dot-2 { left: 50%; }
-.dot-3 { left: 100%; }
-
-.step-text {
-    position: absolute;
-    top: 20px;
-    transform: translateX(-50%);
-    font-size: 0.85rem;
-    color: var(--text-color);
-    width: 100px;
-    text-align: center;
+    transition: transform 0.2s, box-shadow 0.2s;
 }
 
-/* Dark Mode Toggler Icon fix for mobile */
-.navbar-toggler {
-    border-color: var(--border-color);
+.btn-auth:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.3);
+    color: #000;
 }
-.navbar-toggler-icon {
-    filter: invert(1);
+
+/* Animation Keyframes */
+@keyframes slideUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
 }
-[data-theme="light"] .navbar-toggler-icon {
-    filter: invert(0);
+
+/* --- HELPER: RGB Values for transparency --- */
+/* Add these inside your existing :root and [data-theme="dark"] blocks */
+:root {
+    /* ... existing vars ... */
+    --surface-rgb: 255, 255, 255; /* White */
+    --primary-rgb: 37, 99, 235;   /* Blue */
+}
+
+[data-theme="dark"] {
+    /* ... existing vars ... */
+    --surface-rgb: 31, 41, 55;    /* Dark Grey */
+    --primary-rgb: 252, 211, 77;  /* Gold */
+}
+
+/* --- BLENDED SEARCH BAR --- */
+/* Makes the sticky header background match the page background */
+.sticky-blend {
+    background-color: var(--bg-color) !important;
+    transition: background-color 0.3s ease;
+}
+
+/* Custom Search Input Styling */
+.search-input-blend {
+    background-color: var(--surface-color) !important;
+    border: 1px solid var(--border-color) !important;
+    color: var(--text-main) !important;
+}
+
+/* Remove default focus glow and use theme color */
+.search-input-blend:focus {
+    box-shadow: 0 0 0 4px rgba(var(--primary-rgb), 0.15) !important; 
+    border-color: var(--primary-color) !important;
+}
+
+/* Placeholder text color fix for dark mode */
+.search-input-blend::placeholder {
+    color: var(--text-muted) !important;
+    opacity: 0.7;
 }

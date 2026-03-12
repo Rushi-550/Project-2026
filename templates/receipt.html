@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Receipt #{{ order[0] }}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&family=Inter:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+            display: flex;
+            justify-content: center;
+            padding: 40px;
+        }
+        .receipt-container {
+            background: white;
+            width: 100%;
+            max-width: 400px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            border-radius: 10px;
+        }
+        .header { text-align: center; margin-bottom: 30px; border-bottom: 2px dashed #eee; padding-bottom: 20px; }
+        .logo { font-size: 24px; font-weight: 800; color: #111; letter-spacing: -1px; margin-bottom: 5px; }
+        .meta { color: #666; font-size: 12px; margin-bottom: 5px; }
+        
+        .item-list { margin-bottom: 20px; }
+        .item { display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 14px; }
+        .item-details { flex-grow: 1; margin-right: 10px; }
+        .item-name { font-weight: 700; color: #111; display: block; }
+        .item-sub { color: #666; font-size: 12px; }
+        .item-price { font-weight: 700; }
+
+        .totals { border-top: 2px solid #111; padding-top: 15px; margin-top: 20px; }
+        .row { display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 14px; }
+        .grand-total { font-size: 18px; font-weight: 800; margin-top: 10px; }
+
+        .footer { text-align: center; margin-top: 30px; color: #888; font-size: 12px; }
+        .btn-print {
+            display: block; width: 100%; padding: 12px; background: #111; color: white;
+            border: none; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 20px;
+        }
+        .btn-print:hover { background: #333; }
+
+        @media print {
+            body { background: white; padding: 0; }
+            .receipt-container { box-shadow: none; padding: 0; }
+            .btn-print { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="receipt-container">
+        <div class="header">
+            <div class="logo">MIDNIGHT SLICE</div>
+            <div class="meta">Order #{{ order[0] }} • {{ order[6] }}</div>
+            <div class="meta">{{ order[4] }}</div>
+            <div class="meta">Customer: {{ user[0] }}</div>
+        </div>
+
+        <div class="item-list">
+            {% for item in items %}
+            <div class="item">
+                <div class="item-details">
+                    <span class="item-name">{{ item.qty }}x {{ item.name }}</span>
+                    <span class="item-sub">{{ item.size }} • {{ item.crust }}</span>
+                    {% if item.extras %}
+                    <span class="item-sub d-block">+ {{ item.extras|join(', ') }}</span>
+                    {% endif %}
+                </div>
+                <div class="item-price">₹{{ item.total_price }}</div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="totals">
+            <div class="row">
+                <span>Subtotal</span>
+                <span>₹{{ subtotal }}</span>
+            </div>
+            <div class="row">
+                <span>Tax (5%)</span>
+                <span>₹{{ tax | round(2) }}</span>
+            </div>
+            <div class="row grand-total">
+                <span>Total</span>
+                <span>₹{{ order[2] }}</span>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>Thank you for dining with us!</p>
+            <p>www.midnightslice.com</p>
+        </div>
+
+        <button class="btn-print" onclick="window.print()">Download / Print Receipt</button>
+    </div>
+
+</body>
+</html>

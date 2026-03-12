@@ -1,0 +1,87 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="container py-5">
+    <div class="d-flex justify-content-between align-items-center mb-5">
+        <h2 class="fw-bold display-6">Your Orders</h2>
+        <span class="badge bg-primary-subtle text-primary border border-primary p-2">
+            <i class="fas fa-clock me-1"></i> Live Updates Active
+        </span>
+    </div>
+
+    {% if orders %}
+        <div class="row g-5" id="orders-container">
+        {% for order in orders %}
+            <div class="col-12 col-xl-10 mx-auto">
+                <div class="card menu-card shadow-lg mb-4">
+                    <div class="card-header bg-transparent border-bottom border-secondary p-4 d-flex justify-content-between flex-wrap gap-3">
+                        <div>
+                            <span class="text-muted small text-uppercase fw-bold ls-1">Order #{{ order[0] }}</span>
+                            <h4 class="fw-bold mb-0">{{ order[4] }}</h4>
+                        </div>
+                        <div class="text-end">
+                            <span class="badge rounded-pill px-3 py-2 mb-2 {{ 'bg-warning text-dark' if order[6] == 'Takeout' else 'bg-info text-dark' }}">
+                                <i class="fas {{ 'fa-shopping-bag' if order[6] == 'Takeout' else 'fa-utensils' }} me-1"></i>
+                                {{ order[6] }}
+                            </span>
+                            <div class="h4 fw-bold text-primary mb-0">₹{{ order[2] }}</div>
+                        </div>
+                    </div>
+
+                    <div class="card-body p-4">
+                        <div class="stepper-wrapper my-4">
+                            <div class="stepper-item {{ 'completed' if order[3] in ['Preparing', 'Delivered'] else 'active' }}">
+                                <div class="step-counter"><i class="fas fa-receipt"></i></div>
+                                <div class="step-name">Placed</div>
+                            </div>
+                            <div class="stepper-item {{ 'completed' if order[3] == 'Delivered' else ('active' if order[3] == 'Preparing' else '') }}">
+                                <div class="step-counter">
+                                    <i class="fas fa-fire {{ 'fa-beat-fade' if order[3] == 'Preparing' else '' }}"></i>
+                                </div>
+                                <div class="step-name">Baking</div>
+                            </div>
+                            <div class="stepper-item {{ 'completed' if order[3] == 'Delivered' else '' }}">
+                                <div class="step-counter"><i class="fas fa-check"></i></div>
+                                <div class="step-name">Ready</div>
+                            </div>
+                        </div>
+
+                        <div class="bg-dark bg-opacity-25 p-3 rounded-3 mt-4 border border-secondary">
+                            {% for item in order[8] %} 
+                            <div class="d-flex justify-content-between align-items-center mb-2 last-mb-0">
+                                <div>
+                                    <span class="fw-bold text-main">{{ item.qty }}x {{ item.name }}</span>
+                                    <span class="text-muted small ms-2">({{ item.size }})</span>
+                                    {% if item.extras %}
+                                        <div class="small text-primary ps-3 border-start border-primary ms-1 mt-1">
+                                            + {{ item.extras|join(', ') }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <span class="fw-bold">₹{{ item.total_price }}</span>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        
+                        <div class="text-end mt-3">
+                            <a href="{{ url_for('order_receipt', order_id=order[0]) }}" target="_blank" class="btn btn-outline-secondary rounded-pill px-4">
+                                <i class="fas fa-file-invoice me-2"></i> Download Receipt
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+        </div>
+    {% else %}
+        <div class="text-center py-5">
+            <h3 class="text-muted mb-3">No orders yet?</h3>
+            <a href="{{ url_for('menu') }}" class="btn btn-primary px-5 py-3 rounded-pill fw-bold">Order Now</a>
+        </div>
+    {% endif %}
+</div>
+
+<script>
+    // Auto-refresh every 15s to check status
+    setTimeout(function(){ location.reload(); }, 15000); 
+</script>
+{% endblock %}

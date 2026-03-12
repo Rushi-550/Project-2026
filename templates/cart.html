@@ -1,48 +1,121 @@
 {% extends "layout.html" %}
 {% block content %}
-<div class="container mt-5">
-    <h2 class="fw-bold mb-4">Your Order</h2>
+<div class="container py-5">
+    <h2 class="fw-bold mb-4">Your Tray</h2>
 
     {% if cart_items %}
-    <div class="card p-4">
-        <div class="table-responsive">
-            <table class="table align-middle">
-                <thead>
-                    <tr>
-                        <th class="text-muted small">ITEM</th>
-                        <th class="text-muted small text-end">PRICE</th>
-                    </tr>
-                </thead>
-                <tbody>
+    <div class="row g-4">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-0">
                     {% for item in cart_items %}
-                    <tr>
-                        <td class="fw-bold">{{ item[1] }}</td>
-                        <td class="text-end">${{ item[2] }}</td>
-                    </tr>
+                    <div class="p-3 border-bottom d-flex align-items-center justify-content-between">
+                        <div class="d-flex flex-column">
+                            <h5 class="fw-bold mb-1">{{ item.name }}</h5>
+                            <small class="text-muted">
+                                {{ item.size }} | {{ item.crust }} 
+                                {% if item.extras %} + {{ item.extras|join(', ') }} {% endif %}
+                            </small>
+                        </div>
+                        
+                        <div class="d-flex align-items-center gap-3">
+                            <span class="fw-bold text-primary">₹{{ item.total_price }}</span>
+                            
+                            <div class="quantity-control">
+                                <button class="btn btn-sm btn-light" onclick="updateQuantity({{ loop.index0 }}, -1)">
+                                    {% if item.qty == 1 %}
+                                        <i class="fas fa-trash text-danger"></i>
+                                    {% else %}
+                                        <i class="fas fa-minus"></i>
+                                    {% endif %}
+                                </button>
+                                <span class="mx-2 fw-bold">{{ item.qty }}</span>
+                                <button class="btn btn-sm btn-light" onclick="updateQuantity({{ loop.index0 }}, 1)">
+                                    <i class="fas fa-plus"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                     {% endfor %}
-                    <tr class="border-0">
-                        <td class="text-end fw-bold pt-4">Total Amount</td>
-                        <td class="text-end fw-bold pt-4 fs-5 text-primary">${{ total }}</td>
-                    </tr>
-                </tbody>
-            </table>
+                </div>
+            </div>
         </div>
 
-        <div class="text-end mt-4">
-            <form action="{{ url_for('checkout') }}" method="POST">
-                <input type="hidden" name="total" value="{{ total }}">
-                <button type="submit" class="btn btn-primary px-5 py-3 rounded-pill fw-bold">
-                    Place Order <i class="fas fa-arrow-right ms-2"></i>
-                </button>
-            </form>
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-lg position-sticky" style="top: 100px;">
+                <div class="card-header bg-transparent py-3">
+                    <h5 class="fw-bold mb-0">Summary</h5>
+                </div>
+                <div class="card-body">
+                    <form action="{{ url_for('checkout') }}" method="POST">
+                        
+                        <div class="mb-4">
+                            <label class="fw-bold mb-2 small text-muted text-uppercase">Order Type</label>
+                            <div class="btn-group w-100 mb-3" role="group">
+                                <input type="radio" class="btn-check" name="order_type" id="typePickup" value="Pickup" checked onchange="toggleAddress()">
+                                <label class="btn btn-outline-primary" for="typePickup">
+                                    <i class="fas fa-walking me-2"></i>Pickup
+                                </label>
+                                
+                                <input type="radio" class="btn-check" name="order_type" id="typeDelivery" value="Delivery" onchange="toggleAddress()">
+                                <label class="btn btn-outline-primary" for="typeDelivery">
+                                    <i class="fas fa-motorcycle me-2"></i>Delivery
+                                </label>
+                            </div>
+
+                            <div id="addressField" style="display: none;">
+                                <label class="fw-bold mb-1 small">Delivery Address</label>
+                                <textarea name="address" class="form-control bg-light border-0" rows="3" placeholder="Street, City, Zip Code..."></textarea>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Subtotal</span>
+                            <span class="fw-bold">₹{{ total }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-4">
+                            <span>Tax (5%)</span>
+                            <span class="fw-bold">₹{{ (total * 0.05) | round(2) }}</span>
+                        </div>
+                        <hr>
+                        <div class="d-flex justify-content-between mb-4">
+                            <span class="h5 fw-bold">Total</span>
+                            <span class="h5 fw-bold text-primary">₹{{ (total * 1.05) | round(2) }}</span>
+                        </div>
+                        
+                        <input type="hidden" name="total" value="{{ (total * 1.05) | round(2) }}">
+                        <button type="submit" class="btn btn-primary w-100 py-3 fw-bold rounded-pill shadow">
+                            Place Order
+                        </button>
+                    </form>
+                </div>
+            </div>
         </div>
     </div>
     {% else %}
         <div class="text-center py-5">
-            <i class="fas fa-shopping-basket fa-3x text-muted mb-3"></i>
-            <h3>Your cart is empty</h3>
+            <i class="fas fa-shopping-basket fa-4x text-muted mb-3"></i>
+            <h3>Your tray is empty</h3>
             <a href="{{ url_for('menu') }}" class="btn btn-primary mt-3">Browse Menu</a>
         </div>
     {% endif %}
 </div>
+
+<script>
+    // Simple toggle for address field
+    function toggleAddress() {
+        const isDelivery = document.getElementById('typeDelivery').checked;
+        const field = document.getElementById('addressField');
+        const input = field.querySelector('textarea');
+        
+        if (isDelivery) {
+            field.style.display = 'block';
+            input.required = true;
+        } else {
+            field.style.display = 'none';
+            input.required = false;
+            input.value = ''; // Clear if switched back
+        }
+    }
+</script>
 {% endblock %}

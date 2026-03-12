@@ -1,0 +1,149 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<div class="hero-header">
+    <img src="https://images.unsplash.com/photo-1513104890138-7c749659a591?q=80&w=2070" class="hero-img">
+    <div class="position-absolute top-50 start-50 translate-middle text-center w-100">
+        <h1 class="display-3 fw-bold text-white text-shadow">MIDNIGHT MENU</h1>
+        <p class="lead text-white-50">16 Premium Pizzas. Infinite Possibilities.</p>
+    </div>
+</div>
+
+<div class="container mb-5">
+    
+    <div class="row justify-content-center mb-5 sticky-top sticky-blend py-3" style="top: 70px; z-index: 10;">
+        <div class="col-lg-8">
+            <div class="d-flex flex-column flex-md-row gap-3 align-items-center">
+                <div class="search-wrapper flex-grow-1 w-100 position-relative">
+                    <i class="fas fa-search position-absolute top-50 start-0 translate-middle-y ms-3 text-muted"></i>
+                    <input type="text" id="menuSearch" class="form-control rounded-pill ps-5 py-2 shadow-sm search-input-blend" placeholder="Search for pizza..." onkeyup="filterMenu()">
+                </div>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-outline-primary rounded-pill px-3 active filter-btn" onclick="filterType('all', this)">All</button>
+                    <button class="btn btn-outline-success rounded-pill px-3 filter-btn" onclick="filterType('Veg', this)">Veg</button>
+                    <button class="btn btn-outline-danger rounded-pill px-3 filter-btn" onclick="filterType('Non-Veg', this)">Non-Veg</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4" id="menuGrid">
+        {% for product in products %}
+        <div class="col-md-6 col-lg-3 menu-item" data-name="{{ product[1]|lower }}" data-type="{{ product[6] }}">
+            <div class="card h-100 menu-card border-0">
+                <div class="position-relative" style="height: 200px; overflow: hidden;">
+                    <img src="https://source.unsplash.com/400x300/?pizza,{{ product[1].split(' ')[0] }}" class="w-100 h-100 object-fit-cover">
+                    <span class="position-absolute top-0 end-0 m-2 badge {{ 'bg-success' if product[6] == 'Veg' else 'bg-danger' }}">
+                        {{ product[6] }}
+                    </span>
+                </div>
+                <div class="card-body d-flex flex-column p-4">
+                    <h5 class="fw-bold mb-1">{{ product[1] }}</h5>
+                    <p class="small text-muted flex-grow-1 line-clamp-2">{{ product[5] }}</p>
+                    <div class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top border-secondary">
+                        <span class="fw-bold fs-5 text-primary">₹{{ product[2] | int }}</span>
+                        <button class="btn btn-sm btn-outline-primary rounded-pill px-3" 
+                                onclick="openCustomizeModal('{{ product[0] }}', '{{ product[1] }}', '{{ product[2] }}')">
+                            ADD +
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<div class="modal fade" id="customizeModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content shadow-lg">
+            <div class="modal-header border-0 pb-0">
+                <div>
+                    <h5 class="modal-title fw-bold" id="modalPizzaName">Pizza</h5>
+                    <p class="text-muted small mb-0">Base: <span id="modalBasePrice"></span></p>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="fw-bold mb-1 small text-muted text-uppercase">Size</label>
+                    <div class="btn-group w-100" role="group">
+                        <input type="radio" class="btn-check" name="size" id="sizeS" value="Small" onchange="updatePrice()">
+                        <label class="btn btn-outline-secondary" for="sizeS">Small</label>
+                        <input type="radio" class="btn-check" name="size" id="sizeM" value="Medium" checked onchange="updatePrice()">
+                        <label class="btn btn-outline-secondary" for="sizeM">Medium</label>
+                        <input type="radio" class="btn-check" name="size" id="sizeL" value="Large" onchange="updatePrice()">
+                        <label class="btn btn-outline-secondary" for="sizeL">Large</label>
+                    </div>
+                    <select id="sizeSelect" class="d-none"><option value="Small">Small</option><option value="Medium" selected>Medium</option><option value="Large">Large</option></select>
+                </div>
+                <div class="mb-3">
+                    <label class="fw-bold mb-1 small text-muted text-uppercase">Crust</label>
+                    <select class="form-select bg-dark text-white border-secondary" id="crustSelect" onchange="updatePrice()">
+                        <option value="Hand Tossed">Hand Tossed (Free)</option>
+                        <option value="Wheat Thin">Wheat Thin (+₹30)</option>
+                        <option value="Cheese Burst">Cheese Burst (+₹99)</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="fw-bold mb-2 small text-muted text-uppercase">Extra Toppings (+₹30 each)</label>
+                    <div class="row g-2">
+                        <div class="col-6"><div class="form-check"><input class="form-check-input extra-check" type="checkbox" value="40" data-name="Extra Cheese" onchange="updatePrice()"> <label>Extra Cheese (+₹40)</label></div></div>
+                        <div class="col-6"><div class="form-check"><input class="form-check-input extra-check" type="checkbox" value="30" data-name="Mushrooms" onchange="updatePrice()"> <label>Mushrooms</label></div></div>
+                        <div class="col-6"><div class="form-check"><input class="form-check-input extra-check" type="checkbox" value="30" data-name="Black Olives" onchange="updatePrice()"> <label>Black Olives</label></div></div>
+                        <div class="col-6"><div class="form-check"><input class="form-check-input extra-check" type="checkbox" value="30" data-name="Sweet Corn" onchange="updatePrice()"> <label>Sweet Corn</label></div></div>
+                        <div class="col-6"><div class="form-check"><input class="form-check-input extra-check" type="checkbox" value="30" data-name="Jalapenos" onchange="updatePrice()"> <label>Jalapenos</label></div></div>
+                        <div class="col-6"><div class="form-check"><input class="form-check-input extra-check" type="checkbox" value="30" data-name="Red Paprika" onchange="updatePrice()"> <label>Red Paprika</label></div></div>
+                    </div>
+                </div>
+                <div class="d-flex justify-content-between align-items-center pt-3 border-top border-secondary">
+                    <h2 class="fw-bold text-primary m-0">₹<span id="finalPrice">0</span></h2>
+                    <button class="btn btn-primary px-4 rounded-pill" onclick="addToCartWithCustomization()">Add to Order</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Radio to select sync
+    document.querySelectorAll('input[name="size"]').forEach(radio => {
+        radio.addEventListener('change', (e) => {
+            document.getElementById('sizeSelect').value = e.target.value;
+            updatePrice();
+        });
+    });
+
+    // --- SEARCH & FILTER LOGIC ---
+    let currentFilter = 'all';
+
+    function filterType(type, btn) {
+        currentFilter = type;
+        
+        // Visuals
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        
+        filterMenu();
+    }
+
+    function filterMenu() {
+        const query = document.getElementById('menuSearch').value.toLowerCase();
+        const items = document.querySelectorAll('.menu-item');
+
+        items.forEach(item => {
+            const name = item.getAttribute('data-name');
+            const type = item.getAttribute('data-type');
+            
+            const matchesSearch = name.includes(query);
+            const matchesType = (currentFilter === 'all') || (type === currentFilter);
+
+            if (matchesSearch && matchesType) {
+                item.style.display = 'block';
+            } else {
+                item.style.display = 'none';
+            }
+        });
+    }
+</script>
+{% endblock %}
